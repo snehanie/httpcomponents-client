@@ -269,7 +269,7 @@ class CachingExec extends CachingExecBase implements ExecChainHandler {
         } else if (!mayCallBackend(request)) {
             LOG.debug("Cache entry not suitable but only-if-cached requested");
             return convert(generateGatewayTimeout(context), scope);
-        } else if (!(entry.getStatus() == HttpStatus.SC_NOT_MODIFIED && !suitabilityChecker.isConditional(request))) {
+        } else if (isRevalidateRequired() == true && !(entry.getStatus() == HttpStatus.SC_NOT_MODIFIED && !suitabilityChecker.isConditional(request))) {
             LOG.debug("Revalidating cache entry");
             try {
                 if (cacheRevalidator != null
@@ -300,6 +300,10 @@ class CachingExec extends CachingExecBase implements ExecChainHandler {
         }
     }
 
+    boolean isRevalidateRequired() {
+        return false;
+    }
+    
     ClassicHttpResponse revalidateCacheEntry(
             final HttpHost target,
             final ClassicHttpRequest request,
